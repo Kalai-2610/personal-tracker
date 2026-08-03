@@ -10,15 +10,17 @@ class Schema {
 	constructor() {
 		const NAME_REGEX = /^[a-zA-Z][a-zA-Z0-9_ \[\]-]{0,254}$/;
 		Schema.#expense_schema = Joi.object({
+			date: Joi.string().isoDate().required(),
+			description: Joi.string().pattern(NAME_REGEX).required(),
 			amount: Joi.number().positive().precision(2).required(),
-			description: Joi.string().regex(NAME_REGEX).required(),
-			date: Joi.date().required()
-		})
+			category: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required(),
+			payment_mode: Joi.string().valid('Cash', 'UPI', 'Credit Card', 'Debit Card', 'Net Banking', 'Wallet', 'Cheque').required()
+		});
 		Schema.#category_schema = Joi.object({
 			type: Joi.string().regex(NAME_REGEX).required(),
 			category: Joi.string().regex(NAME_REGEX).required(),
 			sub_category: Joi.string().regex(NAME_REGEX).required()
-		})
+		});
 	}
 
 	/**
@@ -38,7 +40,8 @@ class Schema {
 		}
 		const { error, value } = schema.validate(data, {
 			abortEarly: false, // show all errors
-			allowUnknown: false // disallow extra fields
+			allowUnknown: false, // disallow extra fields
+			convert: false
 		});
 		const errors = error?.details?.map((item) => {
 			delete item?.context;
