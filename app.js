@@ -7,7 +7,7 @@ const { RequestLogger } = require('./utils/logger');
 const { verifyUser } = require('./controllers/authController');
 const AuthRouter = require('./routes/authRouter');
 const UserRouter = require('./routes/userRouter');
-const CategoryRouter = require('./routes/categoryRouter');
+const LookUpRouter = require('./routes/lookUpRouter');
 const TransactionRouter = require('./routes/transactionRouter')
 
 const jsonParser = express.json({limit: '10mb'});
@@ -84,7 +84,7 @@ class App {
 		this.#app.use(express.static('./public/'));
 		this.#app.use('/auth/v1/', AuthRouter);
 		this.#app.use('/api/v1/users', verifyUser, UserRouter);
-		this.#app.use('/api/v1/category', verifyUser, CategoryRouter);
+		this.#app.use('/api/v1/lookups', verifyUser, LookUpRouter);
 		this.#app.use('/api/v1/transaction', verifyUser, TransactionRouter);
 
 		// Invalid URL handler
@@ -102,8 +102,8 @@ class App {
 
 	async start(port) {
 		new MongoDB();
-		await MongoDB.initialize();
 		new Schema();
+		await MongoDB.initialize();
 		this.port = port || 3000;
 		this.#app.listen(port, "0.0.0.0", () => {
 			console.info(`Running on port ${port}`);

@@ -33,7 +33,7 @@ const GROUP_BY = {
 }
 
 async function validateCategory(id, userId) {
-	const count = await MongoDB.category.countDocuments({
+	const count = await MongoDB.lookups.countDocuments({
 		_id: new ObjectId(id),
 		_created_by: new ObjectId(userId),
 		is_active: true
@@ -62,8 +62,8 @@ module.exports.getAllTransactions = async (req, res) => {
 		sortDetails.sortOrder = req.query.sortOrder === 'desc' ? -1 : 1;
 		const skip = (page - 1) * size;
 
-		const total = await MongoDB.category.countDocuments(filter);
-		const category = await MongoDB.category
+		const total = await MongoDB.lookups.countDocuments(filter);
+		const category = await MongoDB.lookups
 			.aggregate([
 				{ $match: filter },
 				MongoDB.LOOK_UP_CREATOR,
@@ -99,7 +99,7 @@ module.exports.getCategory = async (req, res) => {
 		if(!req.isSystem) {
 			filter._created_by = new ObjectId(req.user);
 		}
-		const category = (await MongoDB.category.aggregate([
+		const category = (await MongoDB.lookups.aggregate([
 				{ $match: filter },
 				MongoDB.LOOK_UP_CREATOR,
 				MongoDB.LOOK_UP_UPDATOR,
