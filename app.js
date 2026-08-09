@@ -86,10 +86,10 @@ class App {
 		this.#app.use('/api/v1/users', verifyUser, UserRouter);
 		this.#app.use('/api/v1/lookups', verifyUser, LookUpRouter);
 		this.#app.use('/api/v1/transaction', verifyUser, TransactionRouter);
-		this.#app.use('/health', async (req, res) => {
-			res.status(200).json({ success: true });
+		this.#app.use('/v1/health_check', async (req, res) => {
+			res.sendStatus(200);
 		});
-		
+
 		// Invalid URL handler
 		this.#app.use(async (req, res) => {
 			res.body = {
