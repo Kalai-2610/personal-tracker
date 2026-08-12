@@ -124,12 +124,14 @@ module.exports.createLookUp = async (req, res) => {
 		const newLookUp = {
 			type: req.body.type,
 			name: req.body.name,
+			parent_id: new ObjectId(req.body.parent_id),
 			is_active: true,
 			_created_on: new Date().toISOString(),
 			_created_by: new ObjectId(req.user),
 			_updated_on: new Date().toISOString(),
 			_updated_by: new ObjectId(req.user)
 		};
+		newLookUp.parent_id || delete newLookUp.parent_id;
 		const result = await MongoDB.lookups.insertOne(newLookUp);
 		res.status(201).json({ success: true, data: { _id: result.insertedId } });
 	} catch (err) {
