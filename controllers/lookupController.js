@@ -147,6 +147,7 @@ module.exports.updateLoopUp = async (req, res) => {
 	try {
 		const lookUpId = req.params.id;
 		const { type, name, parent_id } = req.body;
+		parent_id = parent_id ? new ObjectId(parent_id) : undefined;
 		const { errors, value } = await Schema.validateSchema(req.body, 'lookup');
 		if (errors?.length) {
 			throw new AppError('Invalid Data', 422, { errors });
@@ -158,7 +159,6 @@ module.exports.updateLoopUp = async (req, res) => {
 		if(filter.parent_id) {
 			await checkParentId(type, parent_id);
 		} else {
-
 			delete filter.parent_id;
 		}
 		if(!req.isSystem) {
