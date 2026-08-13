@@ -37,6 +37,11 @@ class MongoDB {
 	 */
 	static lookups;
 	/**
+	 * Points to the category collection.
+	 * @type {Collection}
+	 */
+	static expenses;
+	/**
 	 * @type {Object}
 	 */
 	static LOOK_UP_CREATOR;
@@ -54,7 +59,8 @@ class MongoDB {
 			'_users',
 			'_sessions',
 			'_logs',
-			'_lookups'
+			'_lookups',
+			'expenses',
 		];
 		const system_keys = [
 			'_id',
@@ -115,6 +121,7 @@ class MongoDB {
 			MongoDB.users = MongoDB.db.collection('_users');
 			MongoDB.sessions = MongoDB.db.collection('_sessions');
 			MongoDB.lookups = MongoDB.db.collection('_lookups');
+			MongoDB.expenses = MongoDB.db.collection('expenses');
 			const systemUser = await MongoDB.users.findOne({ email: 'Administrator' });
 			CacheMechanism.set('systemUser', systemUser);
 			console.log('System Collections are initialized');

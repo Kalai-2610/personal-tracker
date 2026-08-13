@@ -8,7 +8,7 @@ const { verifyUser } = require('./controllers/authController');
 const AuthRouter = require('./routes/authRouter');
 const UserRouter = require('./routes/userRouter');
 const LookUpRouter = require('./routes/lookUpRouter');
-const TransactionRouter = require('./routes/transactionRouter')
+const ExpenseRouter = require('./routes/expenseRouter');
 
 const jsonParser = express.json({limit: '10mb'});
 // const urlEncodedParser = express.urlencoded({ extended: true, limit: '10mb' });
@@ -79,13 +79,13 @@ class App {
 			this.#app.use(morgan('dev'));
 		}
 
-		this.#app.use(processRequest);
-		this.#app.use(requestParser);
+		this.#app.use(processRequest, requestParser);
 		this.#app.use(express.static('./public/'));
 		this.#app.use('/auth/v1/', AuthRouter);
 		this.#app.use('/api/v1/users', verifyUser, UserRouter);
 		this.#app.use('/api/v1/lookups', verifyUser, LookUpRouter);
-		this.#app.use('/api/v1/transaction', verifyUser, TransactionRouter);
+		this.#app.use('/api/v1/expenses', verifyUser, ExpenseRouter);
+
 		this.#app.use('/v1/health_check', async (req, res) => {
 			res.sendStatus(200);
 		});

@@ -172,6 +172,7 @@ module.exports.updateLoopUp = async (req, res) => {
 		delete filter.name;
 		delete filter.type;
 		delete filter.parent_id;
+		updatedData.parent_id || delete updateData.parent_id;
 		const result = await MongoDB.lookups.updateOne(
 			filter,
 			{ $set: updateData }

@@ -19,8 +19,8 @@ class Schema {
 			description: Joi.string().pattern(NAME_REGEX).required(),
 			amount: Joi.number().positive().precision(2).required(),
 			type: Joi.string().pattern(ID_REGEX).required(),
-			category: Joi.string().pattern(ID_REGEX).required(),
-			sub_category: Joi.string().pattern(ID_REGEX).required(),
+			category: Joi.string().pattern(ID_REGEX).optional(),
+			sub_category: Joi.string().pattern(ID_REGEX).optional(),
 			payment_mode: Joi.string().pattern(ID_REGEX).required()
 		});  
 		Schema.#lookup_schema = Joi.object({
