@@ -62,19 +62,7 @@ class MongoDB {
 			'_lookups',
 			'expenses',
 		];
-		const system_keys = [
-			'_id',
-			'_created_by',
-			'_createdBy',
-			'_created_on',
-			'_updated_by',
-			'_updatedBy',
-			'_updated_on',
-			'_expire_on',
-			'is_active'
-		];
 		CacheMechanism.set('system_collections', system_collections);
-		CacheMechanism.set('system_keys', system_keys);
 		const logs_options = {
 			timeseries: {
 				timeField: 'timestamp', // required
@@ -105,7 +93,6 @@ class MongoDB {
 						salt,
 						hash,
 						is_active: true,
-						// is_admin: true,
 						_created_on: new Date().toISOString(),
 						_updated_on: new Date().toISOString()
 					});

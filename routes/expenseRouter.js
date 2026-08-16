@@ -4,10 +4,11 @@ const ExpenseRouter = Router();
 const ExpenseController = require('../controllers/expenseCountroller');
 
 ExpenseRouter.route('/')
-    // .get(ExpenseController.getAllUsers)
+    .get(ExpenseController.getAllExpenses)
     .post(ExpenseController.createExpense);
+ExpenseRouter.route('/report').query(ExpenseController.getExpenseReport);
 ExpenseRouter.route('/:id')
-//     .get(ExpenseController.getUser)
+    .get(ExpenseController.getExpense)
     .put(ExpenseController.updateExpense)
     .delete(ExpenseController.deleteExpense);
 
