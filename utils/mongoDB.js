@@ -59,8 +59,8 @@ class MongoDB {
 			'_users',
 			'_sessions',
 			'_logs',
-			'_lookups',
-			'expenses',
+			'lookups',
+			'transactions',
 		];
 		CacheMechanism.set('system_collections', system_collections);
 		const logs_options = {
@@ -69,46 +69,46 @@ class MongoDB {
 				granularity: 'seconds' // seconds | minutes | hours
 			}
 		};
-		await MongoDB.#client.connect()
 
-		MongoDB.db = MongoDB.#client.db(MongoDB.#DB_NAME);
-		console.log('DB Connection Established');
-		const collections = (await MongoDB.db.listCollections().toArray()).map((item) => item.name);
-		console.log('Collections: ', JSON.stringify(collections));
-		const collections_toCreate = system_collections.filter((item) => !collections.includes(item));
-		console.log('Collections to Create: ', JSON.stringify(collections_toCreate));
-		await Promise.all(
-			collections_toCreate.map(async (item) => {
-				if (item === '_logs') {
-					await MongoDB.db.createCollection(item, logs_options);
-				} else {
-					await MongoDB.db.createCollection(item);
-				}
-				console.log('System Collection created: ', item);
-				if (item === '_users') {
-					const { salt, hash } = await hashPasswordArgon2i(process.env.ADMIN_PASSWORD.trim());
-					await MongoDB.db.collection(item).insertOne({
-						name: 'System',
-						email: 'Administrator',
-						salt,
-						hash,
-						is_active: true,
-						_created_on: new Date().toISOString(),
-						_updated_on: new Date().toISOString()
-					});
-					console.log('System User created');
-				}
-			})
-		);
-
-		
 		try {
+			await MongoDB.#client.connect()
+
+			MongoDB.db = MongoDB.#client.db(MongoDB.#DB_NAME);
+			console.log('DB Connection Established');
+			const collections = (await MongoDB.db.listCollections().toArray()).map((item) => item.name);
+			console.log('Collections: ', JSON.stringify(collections));
+			const collections_toCreate = system_collections.filter((item) => !collections.includes(item));
+			console.log('Collections to Create: ', JSON.stringify(collections_toCreate));
+			await Promise.all(
+				collections_toCreate.map(async (item) => {
+					if (item === '_logs') {
+						await MongoDB.db.createCollection(item, logs_options);
+					} else {
+						await MongoDB.db.createCollection(item);
+					}
+					console.log('System Collection created: ', item);
+					if (item === '_users') {
+						const { salt, hash } = await hashPasswordArgon2i(process.env.ADMIN_PASSWORD.trim());
+						await MongoDB.db.collection(item).insertOne({
+							name: 'System',
+							email: 'Administrator',
+							salt,
+							hash,
+							is_active: true,
+							_created_on: new Date().toISOString(),
+							_updated_on: new Date().toISOString()
+						});
+						console.log('System User created');
+					}
+				})
+			);
+
 			await MongoDB.db.command({ ping: 1 });
 			MongoDB.logs = MongoDB.db.collection('_logs');
 			MongoDB.users = MongoDB.db.collection('_users');
 			MongoDB.sessions = MongoDB.db.collection('_sessions');
-			MongoDB.lookups = MongoDB.db.collection('_lookups');
-			MongoDB.expenses = MongoDB.db.collection('expenses');
+			MongoDB.lookups = MongoDB.db.collection('lookups');
+			MongoDB.expenses = MongoDB.db.collection('transactions');
 			const systemUser = await MongoDB.users.findOne({ email: 'Administrator' });
 			CacheMechanism.set('systemUser', systemUser);
 			console.log('System Collections are initialized');

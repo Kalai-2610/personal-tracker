@@ -8,7 +8,7 @@ const { verifyUser } = require('./controllers/authController');
 const AuthRouter = require('./routes/authRouter');
 const UserRouter = require('./routes/userRouter');
 const LookUpRouter = require('./routes/lookUpRouter');
-const ExpenseRouter = require('./routes/expenseRouter');
+const TransactionRouter = require('./routes/transactionRouter');
 
 const jsonParser = express.json({limit: '10mb'});
 // const urlEncodedParser = express.urlencoded({ extended: true, limit: '10mb' });
@@ -50,7 +50,6 @@ async function requestParser(req, res, next) {
 	next();
 }
 
-
 class App {
 	/**@type {express} */
 	#app; 
@@ -84,7 +83,7 @@ class App {
 		this.#app.use('/auth/v1/', AuthRouter);
 		this.#app.use('/api/v1/users', verifyUser, UserRouter);
 		this.#app.use('/api/v1/lookups', verifyUser, LookUpRouter);
-		this.#app.use('/api/v1/expenses', verifyUser, ExpenseRouter);
+		this.#app.use('/api/v1/transactions', verifyUser, TransactionRouter);
 
 		this.#app.use('/v1/health_check', async (req, res) => {
 			res.sendStatus(200);

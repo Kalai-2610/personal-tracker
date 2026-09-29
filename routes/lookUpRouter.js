@@ -9,7 +9,7 @@ LookUpRouter.route('/')
 
 LookUpRouter.route('/:id')
     .get(lookUpController.getLookup)
-    .put(lookUpController.updateLoopUp)
+    .patch(lookUpController.updateLoopUp)
     .delete(lookUpController.deleteLoopUp);
 
 module.exports = LookUpRouter;

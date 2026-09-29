@@ -1,6 +1,7 @@
 const Joi = require('joi');
 const CacheMechanism = require('./cache');
 const AppError = require('./appError');
+const { get_joi_errors } = require('./glOperations');
 
 class Schema {
 	/** @type {Joi.object} */
@@ -17,7 +18,6 @@ class Schema {
 	constructor() {
 		const NAME_REGEX = /^[a-zA-Z][a-zA-Z0-9_ \[\]-]{0,254}$/;
 		const ID_REGEX = /^[0-9a-fA-F]{24}$/;
-		Schema.#lookup_types = ['account', 'type', 'category', 'sub_category', 'payment_mode'];
 		Schema.#group_by_types = ['account', 'type', 'category', 'sub_category', 'payment_mode', 'day', 'month', 'year'];
 		Schema.#expense_schema = Joi.object({
 			date: Joi.string().isoDate().required(),
@@ -29,11 +29,6 @@ class Schema {
 			payment_mode: Joi.string().pattern(ID_REGEX).required(),
 			account: Joi.string().pattern(ID_REGEX).required()
 		});  
-		Schema.#lookup_schema = Joi.object({
-			type: Joi.string().valid(...Schema.#lookup_types).required(),
-			name: Joi.string().pattern(NAME_REGEX).required(),
-			parent_id: Joi.string().pattern(ID_REGEX).when('type', { is: Joi.valid('category','sub_category'), then: Joi.required(), otherwise: Joi.forbidden() }),
-		});
 		Schema.#report_body_schema = Joi.object({
 			start_date: Joi.string().isoDate().required(),
 			end_date: Joi.string().isoDate().required().custom((value, helpers) => {
@@ -59,9 +54,7 @@ class Schema {
 	 */
 	static async validateSchema(data, type) {
 		let schema;
-		if(type === 'lookup') {
-			schema = Schema.#lookup_schema;
-		} else if(type === 'expense') {
+		if(type === 'expense') {
 			schema = Schema.#expense_schema;
 		} else if(type === 'report') {
 			schema = Schema.#report_body_schema;
@@ -73,25 +66,8 @@ class Schema {
 			allowUnknown: false, // disallow extra fields
 			convert: false
 		});
-		const errors = error?.details?.map((item) => {
-			delete item?.context;
-			delete item?.path;
-			return item;
-		});
+		const errors = get_joi_errors(error);
 		return { errors, value };
-	}
-
-	/**
-	 * Method to check if the lookup type is valid
-	 * @param {Array<String>} types 
-	 */
-	static checkLookUpType (types) {
-		types = Array.isArray(types) ? types : [types];
-		for(const type of types) {
-			if(!Schema.#lookup_types.includes(type)) {
-				throw new AppError(`Invalid lookup type - ${type}`, 422);
-			}
-		}
 	}
 }
 

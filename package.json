@@ -1,11 +1,11 @@
 {
-  "name": "expense-tracker",
+  "name": "personal-tracker",
   "version": "1.0.0",
   "description": "",
   "license": "ISC",
   "author": "",
   "type": "commonjs",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "dev": "nodemon server.js",
     "prod": "set NODE_ENV=production && node server.js"
