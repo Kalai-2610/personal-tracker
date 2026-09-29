@@ -40,7 +40,7 @@ class MongoDB {
 	 * Points to the category collection.
 	 * @type {Collection}
 	 */
-	static expenses;
+	static transactions;
 	/**
 	 * @type {Object}
 	 */
@@ -108,7 +108,7 @@ class MongoDB {
 			MongoDB.users = MongoDB.db.collection('_users');
 			MongoDB.sessions = MongoDB.db.collection('_sessions');
 			MongoDB.lookups = MongoDB.db.collection('lookups');
-			MongoDB.expenses = MongoDB.db.collection('transactions');
+			MongoDB.transactions = MongoDB.db.collection('transactions');
 			const systemUser = await MongoDB.users.findOne({ email: 'Administrator' });
 			CacheMechanism.set('systemUser', systemUser);
 			console.log('System Collections are initialized');

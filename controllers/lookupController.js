@@ -12,8 +12,15 @@ const NAME_REGEX = /^[a-zA-Z][a-zA-Z0-9_ \[\]-]{0,254}$/;
 const LOOKUP_TYPES = ['account', 'type', 'category', 'sub_category', 'payment_mode'];
 const CREATE_LOOKUP_SCHEMA = Joi.object({
 	type: Joi.string().valid(...LOOKUP_TYPES).required(),
-	name: Joi.string().pattern(NAME_REGEX).required(),
-	parent_id: Joi.string().pattern(Constants.MONGO_ID_REGEX).when('type', { is: Joi.valid('category','sub_category'), then: Joi.required(), otherwise: Joi.forbidden() }),
+	name: Joi.string().pattern(NAME_REGEX).required().when('type', {
+		is: 'type',
+		then: Joi.valid('Expense', 'Income')
+	}),
+	parent_id: Joi.string().pattern(Constants.MONGO_ID_REGEX).when('type', {
+		is: Joi.valid('category','sub_category'),
+		then: Joi.required(),
+		otherwise: Joi.forbidden()
+	}),
 });
 
 const UPDATE_LOOKUP_SCHEMA = Joi.object({
