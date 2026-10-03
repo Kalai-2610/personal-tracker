@@ -23,14 +23,13 @@ A Node.js and Express REST API for managing users, sessions, personal finance lo
    DB_USER=your_database_user
    DB_PASSWORD=your_database_password
    DB_NAME=expense_tracker_test
-   PROD_DB_NAME=expense_tracker
    JWT_SECRET=replace_with_a_long_random_secret
    ADMIN_PASSWORD=replace_with_a_strong_initial_admin_password
    DATABASE=mongodb+srv://<DB_USER>:<DB_PASSWORD>@<YOUR_CLUSTER_HOST>/?retryWrites=true&w=majority
    PORT=3000
    ```
 
-   `DATABASE` must be a MongoDB connection URI. The application substitutes `<DB_USER>` and `<DB_PASSWORD>` with the values above. It selects `DB_NAME` outside production and `PROD_DB_NAME` when `NODE_ENV=production`.
+   `DATABASE` must be a MongoDB connection URI. The application substitutes `<DB_USER>` and `<DB_PASSWORD>` with the values above.
 
 3. Start the development server:
 
@@ -44,7 +43,7 @@ The server creates its required MongoDB collections on startup. If the users col
 
 ## Running in Production
 
-On Windows, set `NODE_ENV=production` and run `npm run prod`. The production database name comes from `PROD_DB_NAME`. The current `prod` npm script uses Windows command syntax; the included Dockerfile uses this script as well, so its startup command needs adjustment for a Linux container environment.
+On Windows, set `NODE_ENV=production` and run `npm run prod`. The current `prod` npm script uses Windows command syntax; the included Dockerfile uses this script as well, so its startup command needs adjustment for a Linux container environment.
 
 ## API Overview
 

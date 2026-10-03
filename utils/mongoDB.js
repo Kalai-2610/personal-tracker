@@ -123,14 +123,10 @@ class MongoDB {
 		MongoDB.#URI = process.env.DATABASE.trim()
 			.replaceAll('<DB_USER>', process.env.DB_USER.trim())
 			.replaceAll('<DB_PASSWORD>', process.env.DB_PASSWORD.trim());
-		if (MongoDB.#NODE_ENV === 'production') {
-			MongoDB.#DB_NAME = process.env.PROD_DB_NAME.trim();
-		} else {
-			MongoDB.#DB_NAME = process.env.DB_NAME.trim();
-		}
+		MongoDB.#DB_NAME = process.env.DB_NAME.trim();
+
 		console.log('ENV = ', MongoDB.#NODE_ENV);
 		console.log('DB_NAME = ', MongoDB.#DB_NAME);
-		MongoDB.#URI = MongoDB.#URI.replaceAll('<DB_NAME>', MongoDB.#DB_NAME);
 		MongoDB.#client = new MongoClient(MongoDB.#URI);
 		MongoDB.LOOK_UP_CREATOR = {
 			$lookup: {
