@@ -30,6 +30,19 @@ const TRANSACTION_SCHEMA = Joi.object({
 	payment_mode: Joi.string().pattern(Constants.MONGO_ID_REGEX).optional()
 });
 
+const TRANSACTION_QUERY_SCHEMA = Joi.object({
+	page: Joi.number().integer().min(1).optional(),
+	size: Joi.number().integer().min(1).optional(),
+	search: Joi.string().trim().optional(),
+	is_active: Joi.number().valid(0, 1).optional(),
+	sortBy: Joi.string().valid('date', 'description', 'amount', '_created_on', '_updated_on').optional(),
+	sortOrder: Joi.string().valid('asc', 'desc').optional(),
+	account: Joi.array().items(Joi.string().pattern(Constants.MONGO_ID_REGEX)).min(1).optional(),
+	type: Joi.string().pattern(Constants.MONGO_ID_REGEX).optional(),
+	category: Joi.array().items(Joi.string().pattern(Constants.MONGO_ID_REGEX)).min(1).optional(),
+	payment_mode: Joi.array().items(Joi.string().pattern(Constants.MONGO_ID_REGEX)).min(1).optional()
+});
+
 const JOIN_QUERY = [
 	// 1. Join 'account' from lookups collection
 	{ $lookup: { from: 'lookups', localField: 'account', foreignField: '_id', as: 'account_info' } },
@@ -210,38 +223,67 @@ const GROUP_SCHEMA = Joi.object({
 
 /**
  * Function to validate the category id
- * @param {String} id 
+ * @param {String} ids 
  * @param {String} userId
  * @param {"type"|"category"|"sub_category"|"account"|"payment_mode"} type
  * @returns {Promise<void>}
  */
-async function validateID(id, userId, type) {
-	if(!id) { return; }
-	const count = await MongoDB.lookups.countDocuments({
-		_id: new ObjectId(id),
-		type: type,
-		_created_by: new ObjectId(userId),
-		is_active: true
-	});
-	if (count < 1) {
-		throw new AppError("Invalid " + type + " id", 422);
+async function validateID(ids, userId, type, is_multiple = false) {
+	if(!ids) { return; }
+	const PROCESSED_IDS = Array.isArray(ids) ? ids : [ids];
+	const filter = { _id: {}, type, _created_by: new ObjectId(userId), is_active: true};
+	filter.type || delete filter.type;
+	filter._id.$in = PROCESSED_IDS.map(id => new ObjectId(id));
+	let data = await MongoDB.lookups.find(filter).toArray();
+	data = data.map(d => d._id.toString());
+	if (data.length != PROCESSED_IDS.length) {
+		const err_id = PROCESSED_IDS.map((id, index) => Object.assign({}, { id, index })).filter(d => !data.includes(d.id));
+		let error;
+		if(is_multiple){
+			error = err_id.map(id => Object.assign({message: `"${type}.${id.index}" is not found`, type: "any.invalid"}))
+		} else {
+			error = err_id.map(id => Object.assign({message: `"${type}" is not found`, type: "any.invalid"}))
+		}
+		throw new AppError("Invalid id", 422, { error });
 	}
 }
 
 module.exports.getAllTransactions = async (req, res) => {
 	try {
-		const filter = { is_active: req.query?.is_active != 0, _created_by: new ObjectId(req.user) };
-		const size = Number.parseInt(req.query.size) || 10;
-		const page = Number.parseInt(req.query.page) || 1;
-		if (req.query?.search?.trim()) {
+		let { error } = TRANSACTION_QUERY_SCHEMA.validate(req.body, Constants.JOI_VATIDATION_OPTION);
+		if( error ) {
+			error = get_joi_errors(error);
+			throw new AppError('Invalid Data', 422, { error });
+		}
+		await Promise.all([
+			validateID(req.body.account, req.user, 'account', true),
+			validateID(req.body.type, req.user, 'type'),
+			validateID(req.body.category, req.user, 'category', true),
+			validateID(req.body.payment_mode, req.user, 'payment_mode', true)
+		]);
+		const filter = { is_active: req.body?.is_active != 0, _created_by: new ObjectId(req.user) };
+		const size = Number.parseInt(req.body.size) || 10;
+		const page = Number.parseInt(req.body.page) || 1;
+		if (req.body?.search?.trim()) {
 			filter.$or = [
-				{ descript: { $regex: req.query.search.trim(), $options: 'i' } },
-				{ email: { $regex: req.query.search.trim(), $options: 'i' } }
+				{ description: { $regex: req.body.search.trim(), $options: 'i' } }
 			];
 		}
+		if (req.body.type) {
+			filter.type = new ObjectId(req.body.type);
+		}
+		if (req.body.account) {
+			filter.account = { $in: req.body.account.map(account => new ObjectId(account)) };
+		}
+		if (req.body.category) {
+			filter.category = { $in: req.body.category.map(category => new ObjectId(category)) };
+		}
+		if (req.body.payment_mode) {
+			filter.payment_mode = { $in: req.body.payment_mode.map(payment_mode => new ObjectId(payment_mode)) };
+		}
 		const sortDetails = {};
-		sortDetails.sortBy = req.query.sortBy || 'date';
-		sortDetails.sortOrder = req.query.sortOrder === 'asc' ? 1 : -1;
+		sortDetails.sortBy = req.body.sortBy || 'date';
+		sortDetails.sortOrder = req.body.sortOrder === 'asc' ? 1 : -1;
 		const skip = (page - 1) * size;
 
 		const total = await MongoDB.transactions.countDocuments(filter);
@@ -266,6 +308,9 @@ module.exports.getAllTransactions = async (req, res) => {
 		};
 		res.status(200).json(res.body);
 	} catch (err) {
+		if (err instanceof AppError) {
+			return res.status(err.statusCode).json({ message: err.message, ...err.params });
+		}
 		CommonLogger.error('Failed to fetch transactions', { error: err });
 		res.status(500).json({ error: 'Failed to fetch transactions' });
 	}

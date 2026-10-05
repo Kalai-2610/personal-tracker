@@ -135,7 +135,8 @@ module.exports.createLookUp = async (req, res) => {
 		}
 		const filter = {
 			...req.body,
-			_created_by: new ObjectId(req.user)
+			_created_by: new ObjectId(req.user),
+			is_active: true
 		}
 		if(filter.parent_id) {
 			await checkParentId(filter.type, filter.parent_id);

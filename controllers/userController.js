@@ -47,6 +47,9 @@ module.exports.getAllUsers = async (req, res) => {
 				{ email: { $regex: req.query.search.trim(), $options: 'i' } }
 			];
 		}
+		if(req.query?.exclude_system) {
+			filter._id = { $ne: CacheMechanism.get('systemUser')._id }
+		}
 		const sortDetails = {};
 		sortDetails.sortBy = req.query.sortBy || '_created_on';
 		sortDetails.sortOrder = req.query.sortOrder === 'desc' ? -1 : 1;

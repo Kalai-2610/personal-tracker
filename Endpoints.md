@@ -137,7 +137,7 @@ Base path: `/api/v1/transactions`. Transactions are private to the authenticated
 
 | Method | Path | Description |
 | --- | --- | --- |
-| GET | `/api/v1/transactions` | List transactions. |
+| QUERY | `/api/v1/transactions` | List transactions. |
 | POST | `/api/v1/transactions` | Create a transaction. |
 | QUERY | `/api/v1/transactions/summary` | Aggregate transaction totals. |
 | GET | `/api/v1/transactions/:id` | Fetch one transaction. |
@@ -146,7 +146,28 @@ Base path: `/api/v1/transactions`. Transactions are private to the authenticated
 
 ### List transactions
 
-`GET /api/v1/transactions` accepts `page` (default `1`), `size` (default `10`), `is_active` (`0` includes inactive transactions), `search`, `sortBy` (default `date`), and `sortOrder` (`asc` or `desc`, default `desc`). The response contains `pagination` and `data`.
+`QUERY /api/v1/transactions` accepts a JSON request body with `page` (default `1`), `size` (default `10`), `is_active` (`0` includes inactive transactions), `search`, `sortBy` (default `date`), and `sortOrder` (`asc` or `desc`, default `desc`). `sortBy` may be `date`, `description`, `amount`, `_created_on`, or `_updated_on`.
+
+The body may also include lookup-ID filters: `type` as a single lookup ID, and `account`, `category`, and `payment_mode` as arrays of lookup IDs. All lookup IDs must be active lookups owned by the current user and match the corresponding lookup type.
+
+Example:
+
+```json
+{
+  "page": 1,
+  "size": 10,
+  "is_active": 1,
+  "search": "rent",
+  "sortBy": "date",
+  "sortOrder": "desc",
+  "type": "<type_lookup_id>",
+  "account": ["<account_lookup_id>"],
+  "category": ["<category_lookup_id>"],
+  "payment_mode": ["<payment_mode_lookup_id>"]
+}
+```
+
+The response contains `pagination` and `data`.
 
 The current `search` implementation queries `descript` and `email` fields, rather than the stored transaction `description` field, so search may not find transactions as expected.
 
