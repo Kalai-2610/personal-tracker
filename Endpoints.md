@@ -146,7 +146,7 @@ Base path: `/api/v1/transactions`. Transactions are private to the authenticated
 
 ### List transactions
 
-`QUERY /api/v1/transactions` accepts a JSON request body with `page` (default `1`), `size` (default `10`), `is_active` (`0` includes inactive transactions), `search`, `sortBy` (default `date`), and `sortOrder` (`asc` or `desc`, default `desc`). `sortBy` may be `date`, `description`, `amount`, `_created_on`, or `_updated_on`.
+`QUERY /api/v1/transactions` accepts a JSON request body with `page` (default `1`), `size` (default `10`), `is_active` (`0` includes inactive transactions), `search`, `sortBy` (default `date`), and `sortOrder` (`asc` or `desc`, default `desc`). `sortBy` may be `date`,  `account`, `type`, `payment_mode`, `amount`, `_created_on`, or `_updated_on`.
 
 The body may also include lookup-ID filters: `type` as a single lookup ID, and `account`, `category`, and `payment_mode` as arrays of lookup IDs. All lookup IDs must be active lookups owned by the current user and match the corresponding lookup type.
 

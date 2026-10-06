@@ -35,7 +35,7 @@ const TRANSACTION_QUERY_SCHEMA = Joi.object({
 	size: Joi.number().integer().min(1).optional(),
 	search: Joi.string().trim().optional(),
 	is_active: Joi.number().valid(0, 1).optional(),
-	sortBy: Joi.string().valid('date', 'description', 'amount', '_created_on', '_updated_on').optional(),
+	sortBy: Joi.string().valid('date', 'amount', 'account', 'type', 'payment_mode', '_created_on', '_updated_on').optional(),
 	sortOrder: Joi.string().valid('asc', 'desc').optional(),
 	account: Joi.array().items(Joi.string().pattern(Constants.MONGO_ID_REGEX)).min(1).optional(),
 	type: Joi.string().pattern(Constants.MONGO_ID_REGEX).optional(),
