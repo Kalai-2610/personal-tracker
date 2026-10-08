@@ -135,9 +135,9 @@ const generateSummaryDateFilter = ({ group_by, year, month, start_date, end_date
     switch (group_by) {
         case 'year':
         case 'year_type':
-            startDate = new Date(Date.UTC(year, 0, 1));
-            endDate = new Date(Date.UTC(year + 1, 0, 1));
-            break;
+            // startDate = new Date(Date.UTC(year, 0, 1));
+            // endDate = new Date(Date.UTC(year + 1, 0, 1));
+            // break;
         case 'month':
         case 'month_type':
         case 'type':
@@ -145,8 +145,8 @@ const generateSummaryDateFilter = ({ group_by, year, month, start_date, end_date
         case 'category':
         case 'sub_category':
         case 'payment_mode':
-            startDate = new Date(Date.UTC(year, month - 1, 1));
-            endDate = new Date(Date.UTC(year, month, 1));
+            startDate = month ? new Date(Date.UTC(year, month - 1, 1)) : new Date(Date.UTC(year, 0, 1));
+            endDate = month ? new Date(Date.UTC(year, month, 1)) : new Date(Date.UTC(year + 1, 0, 1));
             break;
         default:
             return {};
@@ -183,16 +183,8 @@ const GROUP_SCHEMA = Joi.object({
 		'payment_mode'
 	).required(),
 	account: Joi.string().pattern(Constants.MONGO_ID_REGEX).optional(),
-	type: Joi.string().pattern(Constants.MONGO_ID_REGEX).when('group_by', {
-		is: Joi.string().valid('category', 'payment_mode'),
-		then: Joi.required(),
-		otherwise: Joi.optional()
-	}),
-	category: Joi.string().pattern(Constants.MONGO_ID_REGEX).when('group_by', {
-		is: Joi.string().valid('sub_category'),
-		then: Joi.required(),
-		otherwise: Joi.optional()
-	}),
+	type: Joi.string().pattern(Constants.MONGO_ID_REGEX).optional(),
+	category: Joi.string().pattern(Constants.MONGO_ID_REGEX).optional(),
 	sub_category: Joi.string().pattern(Constants.MONGO_ID_REGEX).optional(),
 	payment_mode: Joi.string().pattern(Constants.MONGO_ID_REGEX).optional(),
 	year: Joi.number().integer().min(1900).max(2100).when('group_by', {
@@ -200,11 +192,7 @@ const GROUP_SCHEMA = Joi.object({
 		then: Joi.required(),
 		otherwise: Joi.optional()
 	}),
-	month: Joi.number().integer().min(1).max(12).when('group_by', {
-		is: Joi.string().valid('type', 'type_payment_mode', 'category', 'sub_category', 'payment_mode'),
-		then: Joi.required(),
-		otherwise: Joi.optional()
-	}),
+	month: Joi.number().integer().min(1).max(12).optional(),
 	start_date: Joi.string().isoDate().max(10).optional().custom((value, helpers) => {
 		const parsedDate = new Date(value);
 		if (isNaN(parsedDate.getTime()) || parsedDate.toISOString().slice(0, 10) !== value) {
