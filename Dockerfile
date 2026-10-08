@@ -1,5 +1,5 @@
 #Base image
-FROM node:20 
+FROM node:20.19.3
 #working directory of inside the container
 WORKDIR /app
 #Copy the package.json fom current directory
