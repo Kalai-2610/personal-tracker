@@ -47,6 +47,7 @@ async function requestParser(req, res, next) {
 	if (content_type === 'application/json') {
 		return jsonParser(req, res, next);
 	}
+	console.log(`[INCOMING] ${req.method} ${req.originalUrl}`);
 	next();
 }
 
