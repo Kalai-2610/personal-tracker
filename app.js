@@ -15,6 +15,7 @@ const jsonParser = express.json({limit: '10mb'});
 // const allowedOrigins = CacheMechanism.get('CORS_ORIGINS');
 
 async function processRequest(req, res, next) {
+	console.log(`[INCOMING] ${req.method} ${req.originalUrl}`);
 	req.requestTime = new Date().toISOString();
 	const originalJson = res.json.bind(res);
 
@@ -47,7 +48,6 @@ async function requestParser(req, res, next) {
 	if (content_type === 'application/json') {
 		return jsonParser(req, res, next);
 	}
-	console.log(`[INCOMING] ${req.method} ${req.originalUrl}`);
 	next();
 }
 
