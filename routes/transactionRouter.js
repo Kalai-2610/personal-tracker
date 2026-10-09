@@ -4,10 +4,10 @@ const TransactionRouter = Router();
 const transactionController = require('../controllers/transactionController');
 
 TransactionRouter.route('/')
-    .query(transactionController.getAllTransactions)
+    .post(transactionController.getAllTransactions)
     .post(transactionController.createTransaction);
 TransactionRouter.route('/summary')
-    .query(transactionController.getTransactionSummary);
+    .post(transactionController.getTransactionSummary);
 TransactionRouter.route('/:id')
     .get(transactionController.getTransaction)
     .put(transactionController.updateTransaction)
