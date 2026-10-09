@@ -137,7 +137,7 @@ Base path: `/api/v1/transactions`. Transactions are private to the authenticated
 
 | Method | Path | Description |
 | --- | --- | --- |
-| POST | `/api/v1/transactions` | List transactions. |
+| POST | `/api/v1/transactions/list` | List transactions. |
 | POST | `/api/v1/transactions` | Create a transaction. |
 | POST | `/api/v1/transactions/summary` | Aggregate transaction totals. |
 | GET | `/api/v1/transactions/:id` | Fetch one transaction. |

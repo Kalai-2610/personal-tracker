@@ -4,8 +4,9 @@ const TransactionRouter = Router();
 const transactionController = require('../controllers/transactionController');
 
 TransactionRouter.route('/')
-    .post(transactionController.getAllTransactions)
     .post(transactionController.createTransaction);
+TransactionRouter.route('/list')
+    .post(transactionController.getAllTransactions);
 TransactionRouter.route('/summary')
     .post(transactionController.getTransactionSummary);
 TransactionRouter.route('/:id')
