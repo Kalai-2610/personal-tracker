@@ -137,9 +137,9 @@ Base path: `/api/v1/transactions`. Transactions are private to the authenticated
 
 | Method | Path | Description |
 | --- | --- | --- |
-| QUERY | `/api/v1/transactions` | List transactions. |
+| POST | `/api/v1/transactions` | List transactions. |
 | POST | `/api/v1/transactions` | Create a transaction. |
-| QUERY | `/api/v1/transactions/summary` | Aggregate transaction totals. |
+| POST | `/api/v1/transactions/summary` | Aggregate transaction totals. |
 | GET | `/api/v1/transactions/:id` | Fetch one transaction. |
 | PUT | `/api/v1/transactions/:id` | Replace transaction fields. |
 | DELETE | `/api/v1/transactions/:id` | Deactivate a transaction. |
@@ -169,7 +169,7 @@ Example:
 
 The response contains `pagination` and `data`.
 
-The current `search` implementation queries `descript` and `email` fields, rather than the stored transaction `description` field, so search may not find transactions as expected.
+The current `search` implementation queries `description` and `email` fields.
 
 ### Create or replace a transaction
 
@@ -194,22 +194,24 @@ Fetched transactions return joined lookup names for `account`, `type`, `category
 
 ### Transaction summary
 
-The summary uses the HTTP `QUERY` method and a JSON body (not GET or POST):
+The summary uses the HTTP `POST` method and a JSON body (not GET or POST):
 
-`QUERY /api/v1/transactions/summary`
+Allowed `group_by` values:
 
-Allowed `group_by` values: `year`, `year_type`, `month`, `month_type`, `type`, `type_account`, `type_payment_mode`, `category`, `sub_category`, and `payment_mode`.
+- `year`
+- `year_type`
+- `month`
+- `month_type`
+- `type`
+- `type_account`
+- `type_payment_mode`
+- `category`
+- `sub_category`
+- `payment_mode`
 
-Example:
-
-```json
-{
-  "group_by": "month_type",
-  "year": 2026
-}
-```
-
-The body may also include lookup-ID filters `account`, `type`, `category`, `sub_category`, and `payment_mode`, plus `start_date` and `end_date` in `YYYY-MM-DD` format. For `month`, `month_type`, `type`, `type_payment_mode`, `category`, `sub_category`, and `payment_mode`, `year` is required. For `type`, `type_payment_mode`, `category`, `sub_category`, and `payment_mode`, `month` is also required. `type` is required when grouping by `category` or `payment_mode`; `category` is required when grouping by `sub_category`.
+The body may include `account`, `type`, `category`, `sub_category`, and `payment_mode` lookup IDs, along with `year`, `month`, `start_date`, and `end_date`. `year` is required for `month`, `month_type`, `type`, `type_payment_mode`, `category`, `sub_category`, and `payment_mode` grouping.
+`month` is optional. When supplied, it must be between `1` and `12`.
+`start_date` and `end_date` must use `YYYY-MM-DD` format.
 
 The response is an array of grouped totals containing applicable `year` and `month` fields, lookup names, `total_amount`, and `count`.
 
